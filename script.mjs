@@ -39,12 +39,16 @@ window.onload = function () {
       return;
     }
 
-    const newTopic = {
-      topicName: topicNameInput.value,
-      startDate: startDateInput.value,
-    };
+    const revisionDates = getRevisionDates(startDateInput.value);
 
-    addData(selectedUserId, [newTopic]);
+    const newAgendaItems = revisionDates.map((revisionDate) => {
+      return {
+        topicName: topicNameInput.value,
+        revisionDate: revisionDate.date,
+      };
+    });
+
+    addData(selectedUserId, newAgendaItems);
 
     topicForm.reset();
     setDefaultDate(startDateInput);
@@ -61,26 +65,20 @@ function setDefaultDate(startDateInput) {
   startDateInput.value = `${year}-${month}-${day}`;
 }
 
-function getUpcomingAgendaItems(agendaItems) {
+function getTodayString() {
   const today = new Date();
   const year = today.getFullYear();
   const month = String(today.getMonth() + 1).padStart(2, "0");
   const day = String(today.getDate()).padStart(2, "0");
-  const todayString = `${year}-${month}-${day}`;
 
-  const upcomingAgendaItems = [];
+  return `${year}-${month}-${day}`;
+}
 
-  agendaItems.forEach((agendaItem) => {
-    const revisionDates = getRevisionDates(agendaItem.startDate);
+function getUpcomingAgendaItems(agendaItems) {
+  const todayString = getTodayString();
 
-    revisionDates.forEach((revisionDate) => {
-      if (revisionDate.date >= todayString) {
-        upcomingAgendaItems.push({
-          topicName: agendaItem.topicName,
-          revisionDate: revisionDate.date,
-        });
-      }
-    });
+  const upcomingAgendaItems = agendaItems.filter((agendaItem) => {
+    return agendaItem.revisionDate >= todayString;
   });
 
   upcomingAgendaItems.sort((a, b) => {
