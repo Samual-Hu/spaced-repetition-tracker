@@ -5,8 +5,68 @@
 // You can't open the index.html file using a file:// URL.
 
 import { getUserIds } from "./common.mjs";
+import { getData, addData } from "./storage.mjs";
 
 window.onload = function () {
+  const userSelect = document.getElementById("user-select");
+  const agendaList = document.getElementById("agenda-list");
+  const topicForm = document.getElementById("topic-form");
+  const topicNameInput = document.getElementById("topic-name");
+  const startDateInput = document.getElementById("start-date");
+
   const users = getUserIds();
-  document.querySelector("body").innerText = `There are ${users.length} users`;
+
+  users.forEach((userId) => {
+    const option = document.createElement("option");
+    option.value = userId;
+    option.innerText = `User ${userId}`;
+    userSelect.appendChild(option);
+  });
+
+  userSelect.addEventListener("change", function () {
+    const selectedUserId = userSelect.value;
+    renderAgenda(selectedUserId, agendaList);
+  });
+
+  topicForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const selectedUserId = userSelect.value;
+
+    if (!selectedUserId) {
+      return;
+    }
+
+    const newTopic = {
+      topicName: topicNameInput.value,
+      startDate: startDateInput.value,
+    };
+
+    addData(selectedUserId, [newTopic]);
+
+    topicForm.reset();
+    renderAgenda(selectedUserId, agendaList);
+  });
 };
+function renderAgenda(userId, agendaList) {
+  agendaList.innerHTML = "";
+
+  if (!userId) {
+    return;
+  }
+
+  const agendaItems = getData(userId) || [];
+
+  if (agendaItems.length === 0) {
+    const emptyMessage = document.createElement("li");
+    emptyMessage.innerText = "No revision agenda found for this user.";
+    agendaList.appendChild(emptyMessage);
+    return;
+  }
+
+  agendaItems.forEach((agendaItem) => {
+    const listItem = document.createElement("li");
+    listItem.innerText = `${agendaItem.topicName} - first learned on ${agendaItem.startDate}`;
+    agendaList.appendChild(listItem);
+  });
+}
