@@ -32,3 +32,9 @@ test("Revision dates are calculated correctly", () => {
     },
   ]);
 });
+
+test("Revision dates are correct across daylight saving boundary", () => {
+  const result = getRevisionDates("2026-10-25");
+
+  assert.equal(result[0].date, "2026-11-01");
+});

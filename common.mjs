@@ -7,9 +7,9 @@ function padNumber(number) {
 }
 
 function dateToString(date) {
-  const year = date.getFullYear();
-  const month = padNumber(date.getMonth() + 1);
-  const day = padNumber(date.getDate());
+  const year = date.getUTCFullYear();
+  const month = padNumber(date.getUTCMonth() + 1);
+  const day = padNumber(date.getUTCDate());
 
   return `${year}-${month}-${day}`;
 }
@@ -20,26 +20,26 @@ function stringToDate(dateString) {
   const month = Number(parts[1]);
   const day = Number(parts[2]);
 
-  return new Date(year, month - 1, day);
+  return new Date(Date.UTC(year, month - 1, day));
 }
 
 function addDays(dateString, daysToAdd) {
   const date = stringToDate(dateString);
-  date.setDate(date.getDate() + daysToAdd);
+  date.setUTCDate(date.getUTCDate() + daysToAdd);
 
   return dateToString(date);
 }
 
 function addMonths(dateString, monthsToAdd) {
   const date = stringToDate(dateString);
-  date.setMonth(date.getMonth() + monthsToAdd);
+  date.setUTCMonth(date.getUTCMonth() + monthsToAdd);
 
   return dateToString(date);
 }
 
 function addYears(dateString, yearsToAdd) {
   const date = stringToDate(dateString);
-  date.setFullYear(date.getFullYear() + yearsToAdd);
+  date.setUTCFullYear(date.getUTCFullYear() + yearsToAdd);
 
   return dateToString(date);
 }

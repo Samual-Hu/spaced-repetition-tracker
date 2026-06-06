@@ -1,6 +1,8 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Spaced Repetition Tracker</title>
     <script type="module" src="script.mjs"></script>
   </head>
@@ -16,14 +18,20 @@
       <h2>Add a topic</h2>
 
       <form id="topic-form">
-        <label for="topic-name">Topic name:</label>
-        <input id="topic-name" type="text" required />
+        <p>
+          <label for="topic-name">Topic name:</label>
+          <input id="topic-name" type="text" required />
+        </p>
 
-        <label for="start-date">Date first learned:</label>
-        <input id="start-date" type="date" required />
+        <p>
+          <label for="start-date">Date first learned:</label>
+          <input id="start-date" type="date" required />
+        </p>
 
         <button type="submit">Add topic</button>
       </form>
+
+      <p id="message" role="status" aria-live="polite"></p>
 
       <h2>Revision agenda</h2>
       <ul id="agenda-list"></ul>

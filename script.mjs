@@ -1,9 +1,3 @@
-// This is a placeholder file which shows how you can access functions defined in other files.
-// It can be loaded into index.html.
-// You can delete the contents of the file once you have understood how it works.
-// Note that when running locally, in order to open a web page which uses modules, you must serve the directory over HTTP e.g. with https://www.npmjs.com/package/http-server
-// You can't open the index.html file using a file:// URL.
-
 import { getUserIds, getRevisionDates } from "./common.mjs";
 import { getData, addData } from "./storage.mjs";
 
@@ -13,20 +7,14 @@ window.onload = function () {
   const topicForm = document.getElementById("topic-form");
   const topicNameInput = document.getElementById("topic-name");
   const startDateInput = document.getElementById("start-date");
+  const message = document.getElementById("message");
 
   setDefaultDate(startDateInput);
-
-  const users = getUserIds();
-
-  users.forEach((userId) => {
-    const option = document.createElement("option");
-    option.value = userId;
-    option.innerText = `User ${userId}`;
-    userSelect.appendChild(option);
-  });
+  renderUserOptions(userSelect);
 
   userSelect.addEventListener("change", function () {
     const selectedUserId = userSelect.value;
+    message.innerText = "";
     renderAgenda(selectedUserId, agendaList);
   });
 
@@ -36,6 +24,7 @@ window.onload = function () {
     const selectedUserId = userSelect.value;
 
     if (!selectedUserId) {
+      message.innerText = "Please choose a user before adding a topic.";
       return;
     }
 
@@ -55,6 +44,17 @@ window.onload = function () {
     renderAgenda(selectedUserId, agendaList);
   });
 };
+
+function renderUserOptions(userSelect) {
+  const users = getUserIds();
+
+  users.forEach((userId) => {
+    const option = document.createElement("option");
+    option.value = userId;
+    option.innerText = `User ${userId}`;
+    userSelect.appendChild(option);
+  });
+}
 
 function setDefaultDate(startDateInput) {
   const today = new Date();
