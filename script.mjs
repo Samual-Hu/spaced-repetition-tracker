@@ -4,7 +4,7 @@
 // Note that when running locally, in order to open a web page which uses modules, you must serve the directory over HTTP e.g. with https://www.npmjs.com/package/http-server
 // You can't open the index.html file using a file:// URL.
 
-import { getUserIds } from "./common.mjs";
+import { getUserIds, getRevisionDates } from "./common.mjs";
 import { getData, addData } from "./storage.mjs";
 
 window.onload = function () {
@@ -13,6 +13,8 @@ window.onload = function () {
   const topicForm = document.getElementById("topic-form");
   const topicNameInput = document.getElementById("topic-name");
   const startDateInput = document.getElementById("start-date");
+
+  setDefaultDate(startDateInput);
 
   const users = getUserIds();
 
@@ -45,9 +47,49 @@ window.onload = function () {
     addData(selectedUserId, [newTopic]);
 
     topicForm.reset();
+    setDefaultDate(startDateInput);
     renderAgenda(selectedUserId, agendaList);
   });
 };
+
+function setDefaultDate(startDateInput) {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+
+  startDateInput.value = `${year}-${month}-${day}`;
+}
+
+function getUpcomingAgendaItems(agendaItems) {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  const todayString = `${year}-${month}-${day}`;
+
+  const upcomingAgendaItems = [];
+
+  agendaItems.forEach((agendaItem) => {
+    const revisionDates = getRevisionDates(agendaItem.startDate);
+
+    revisionDates.forEach((revisionDate) => {
+      if (revisionDate.date >= todayString) {
+        upcomingAgendaItems.push({
+          topicName: agendaItem.topicName,
+          revisionDate: revisionDate.date,
+        });
+      }
+    });
+  });
+
+  upcomingAgendaItems.sort((a, b) => {
+    return a.revisionDate.localeCompare(b.revisionDate);
+  });
+
+  return upcomingAgendaItems;
+}
+
 function renderAgenda(userId, agendaList) {
   agendaList.innerHTML = "";
 
@@ -56,17 +98,18 @@ function renderAgenda(userId, agendaList) {
   }
 
   const agendaItems = getData(userId) || [];
+  const upcomingAgendaItems = getUpcomingAgendaItems(agendaItems);
 
-  if (agendaItems.length === 0) {
+  if (upcomingAgendaItems.length === 0) {
     const emptyMessage = document.createElement("li");
     emptyMessage.innerText = "No revision agenda found for this user.";
     agendaList.appendChild(emptyMessage);
     return;
   }
 
-  agendaItems.forEach((agendaItem) => {
+  upcomingAgendaItems.forEach((agendaItem) => {
     const listItem = document.createElement("li");
-    listItem.innerText = `${agendaItem.topicName} - first learned on ${agendaItem.startDate}`;
+    listItem.innerText = `${agendaItem.topicName}, ${agendaItem.revisionDate}`;
     agendaList.appendChild(listItem);
   });
 }
